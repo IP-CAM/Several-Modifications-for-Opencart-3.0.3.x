@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+    <name><![CDATA[BannersStartEnd]]></name>
+    <version><![CDATA[1.0]]></version>
+    <code><![CDATA[bannersstartend]]></code>
+    <author><![CDATA[viste.bg]]></author>
+    <link><![CDATA[https://viste.bg]]></link>
+	
+
+    <file path="admin/controller/design/banner.php">
+      <operation>
+          <search ><![CDATA['link'       => $banner_image['link'],]]></search>
+          <add position="after" ><![CDATA['startingDate'       => $banner_image['startingDate'],
+					'endDate'       => $banner_image['endDate'],]]></add>
+      </operation>
+    </file>
+
+    <file path="admin/model/design/banner.php">
+      <operation>
+          <search ><![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "banner_image SET banner_id = '" . (int)$banner_id . "', language_id = '" . (int)$language_id . "', title = '" .  $this->db->escape($banner_image['title']) . "', link = '" .  $this->db->escape($banner_image['link']) . "', image = '" .  $this->db->escape($banner_image['image']) . "', sort_order = '" . (int)$banner_image['sort_order'] . "'");]]></search>
+          <add position="replace" ><![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "banner_image SET banner_id = '" . (int)$banner_id . "', language_id = '" . (int)$language_id . "', title = '" .  $this->db->escape($banner_image['title']) . "', link = '" .  $this->db->escape($banner_image['link']) . "', image = '" .  $this->db->escape($banner_image['image']) . "', startingDate = '" .  $this->db->escape($banner_image['startingDate']) . "', endDate = '" .  $this->db->escape($banner_image['endDate']) . "', sort_order = '" . (int)$banner_image['sort_order'] . "'");]]></add>
+      </operation>
+
+        <operation>
+          <search ><![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "banner_image SET banner_id = '" . (int)$banner_id . "', language_id = '" . (int)$language_id . "', title = '" .  $this->db->escape($banner_image['title']) . "', link = '" .  $this->db->escape($banner_image['link']) . "', image = '" .  $this->db->escape($banner_image['image']) . "', sort_order = '" .  (int)$banner_image['sort_order'] . "'");]]></search>
+          <add position="replace" ><![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "banner_image SET banner_id = '" . (int)$banner_id . "', language_id = '" . (int)$language_id . "', title = '" .  $this->db->escape($banner_image['title']) . "', link = '" .  $this->db->escape($banner_image['link']) . "', image = '" .  $this->db->escape($banner_image['image']) . "', startingDate = '" .  $this->db->escape($banner_image['startingDate']) . "', endDate = '" .  $this->db->escape($banner_image['endDate']) . "', sort_order = '" .  (int)$banner_image['sort_order'] . "'");]]></add>
+      </operation>
+
+     <operation>
+          <search ><![CDATA['image'      => $banner_image['image'],]]></search>
+          <add position="after" ><![CDATA['startingDate'      => $banner_image['startingDate'],
+				'endDate'      => $banner_image['endDate'],]]></add>
+      </operation>
+    </file>
+
+    
+    <file path="admin/view/template/design/banner_form.twig">
+      <operation>
+          <search ><![CDATA[	html += '  <td class="text-right" style="width: 10%;"><input type="text" name="banner_image[' + language_id + '][' + image_row + '][sort_order]" value="" placeholder="{{ entry_sort_order }}" class="form-control" /></td>';]]></search>
+          <add position="after" ><![CDATA[html += '  <td class="text-left"> <div class="input-group date"><input type="text" name="banner_image[{{ language.language_id }}][{{ image_row }}][startingDate]" value="2022-01-01" data-date-format="YYYY-MM-DD" id="startingDate" class="form-control" /><span class="input-group-btn"><button type="button" class="btn btn-default"><i class="fa fa-calendar"></i></button></span></div></td>';
+                html += '  <td class="text-left"> <div class="input-group date"><input type="text" name="banner_image[{{ language.language_id }}][{{ image_row }}][endDate]" value="2022-01-01" data-date-format="YYYY-MM-DD" id="endDate" class="form-control" /><span class="input-group-btn"><button type="button" class="btn btn-default"><i class="fa fa-calendar"></i></button></span></div></td>';
+            ]]></add>
+      </operation>
+
+       <operation>
+          <search ><![CDATA[image_row++;]]></search>
+          <add position="after" ><![CDATA[$('.date').datetimepicker({
+            language: 'en-gb',
+            pickTime: false
+                });]]></add>
+      </operation>
+
+             <operation>
+          <search ><![CDATA[$('#language a:first').tab('show');]]></search>
+          <add position="after" ><![CDATA[$('.date').datetimepicker({
+                language: 'en-gb',
+            pickTime: false
+            });]]></add>
+      </operation>
+
+             <operation>
+          <search ><![CDATA[<td class="text-right" style="width: 10%;"><input type="text" name="banner_image[{{ language.language_id }}][{{ image_row }}][sort_order]" value="{{ banner_image.sort_order }}" placeholder="{{ entry_sort_order }}" class="form-control" /></td>]]></search>
+          <add position="after" ><![CDATA[ 
+                     <td class="text-right" style="width: 10%;"><div class="input-group date"><input type="text" name="banner_image[{{ language.language_id }}][{{ image_row }}][startingDate]" value="{{ banner_image.startingDate }}" data-date-format="YYYY-MM-DD" id="startingDate" class="form-control" /><span class="input-group-btn"><button type="button" class="btn btn-default"><i class="fa fa-calendar"></i></button></span></div></td> 
+                     <td class="text-right" style="width: 10%;"><div class="input-group date"><input type="text" name="banner_image[{{ language.language_id }}][{{ image_row }}][endDate]" value="{{ banner_image.endDate }}" data-date-format="YYYY-MM-DD" id="endDate" class="form-control" /><span class="input-group-btn"><button type="button" class="btn btn-default"><i class="fa fa-calendar"></i></button></span></div></td> 
+                    ]]></add>
+      </operation>
+
+             <operation>
+          <search ><![CDATA[<td class="text-right">{{ entry_sort_order }}</td>]]></search>
+          <add position="after" ><![CDATA[ <td class="text-center">Начална дата</td> 
+                     <td class="text-center">Крайна дата</td> 
+            ]]></add>
+      </operation>
+
+    
+    </file>
+
+    <file path="catalog/controller/extension/module/banner.php">
+        <operation>
+          <search ><![CDATA[$results = $this->model_design_banner->getBanner($setting['banner_id']);]]></search>
+          <add position="after" ><![CDATA[$currentDate = date("Y-m-d");]]></add>
+        </operation>
+
+        <operation>
+          <search ><![CDATA[foreach ($results as $result) {]]></search>
+          <add position="after" ><![CDATA[if($result['endDate'] >= $currentDate && $result['startingDate'] <= $currentDate ){]]></add>
+        </operation>
+
+         <operation>
+          <search ><![CDATA[ $data['mobile'] = $mobile;]]></search>
+          <add position="before" ><![CDATA[}]]></add>
+        </operation>
+
+    </file>
+
+    <file path="catalog/controller/extension/module/slideshow.php">
+        <operation>
+          <search ><![CDATA[$results = $this->model_design_banner->getBanner($setting['banner_id']);]]></search>
+          <add position="after" ><![CDATA[$currentDate = date("Y-m-d");]]></add>
+        </operation>
+
+        <operation>
+          <search ><![CDATA[foreach ($results as $result) {]]></search>
+          <add position="after" ><![CDATA[if($result['endDate'] >= $currentDate && $result['startingDate'] <= $currentDate ){]]></add>
+        </operation>
+
+         <operation>
+          <search ><![CDATA[ $data['module'] = $module++;]]></search>
+          <add position="before" ><![CDATA[}]]></add>
+        </operation>
+
+    </file>
+
+</modification>
