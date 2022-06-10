@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+    <name><![CDATA[adminBar]]></name>
+    <version><![CDATA[1.0]]></version>
+    <code><![CDATA[adminBar]]></code>
+    <author><![CDATA[Andrey Kostov]]></author>
+    <link><![CDATA[https://website.com]]></link>
+	
+
+    <file path="catalog/controller/common/header.php">
+      <operation>
+          <search ><![CDATA[$data['menu'] = $this->load->controller('common/menu');]]></search>
+          <add position="after" ><![CDATA[
+          //Admin Bar Start
+		if($this->session->data['user_id']){
+			$data['adminBar'] = 1;
+		   }else{
+			$data['adminBar'] = 0;
+		   }
+
+		   
+		   $data['adminBarToken'] = $this->session->data['user_token'];
+
+		   $data['is_information'] = isset($this->request->get['route']) && $this->request->get['route'] == 'information/information';
+		   $data['is_category'] = isset($this->request->get['route']) && $this->request->get['route'] == 'product/category';
+		   $data['is_brand'] = isset($this->request->get['route']) && $this->request->get['route'] == 'product/manufacturer/info';
+
+		   if(isset($this->request->get['route']) && $this->request->get['route'] == 'information/information'){
+			$info_id = (int)$this->request->get['information_id'];
+			$data['customInfoId'] = $info_id;
+		   }elseif(isset($this->request->get['route']) && $this->request->get['route'] == 'product/product'){
+			$product_id = (int)$this->request->get['product_id'];
+			$data['customProductId'] = $product_id;
+		   }elseif(isset($this->request->get['route']) && $this->request->get['route'] == 'product/category'){
+			$parts = explode('_', (string)$this->request->get['path']);
+			$category_id = (int)array_pop($parts);
+			$data['customCategoryId'] = $category_id;
+		   }
+		   elseif(isset($this->request->get['route']) && $this->request->get['route'] == 'product/manufacturer/info'){
+			$brand_id = $this->request->get['manufacturer_id'];
+			$data['customBrandId'] = $brand_id;
+		   }
+
+		//Admin Bar End
+
+          ]]></add>
+      </operation>
+
+    </file>
+
+    <file path="catalog/view/theme/default/template/common/header.twig">
+      <operation>
+          <search ><![CDATA[<nav id="top">]]></search>
+          <add position="before" ><![CDATA[
+{# Admin Bar Start #}
+
+{% if adminBar == 1 %}
+  <div id="adminBar">
+    {% if is_product %}
+      <a href="/admin/index.php?route=catalog/product/edit&user_token={{adminBarToken}}&product_id={{customProductId}}" target="_blank"> Редактирай този продукт</a>
+    {% elseif is_information %}
+      <a href="/admin/index.php?route=catalog/information/edit&user_token={{adminBarToken}}&information_id={{customInfoId}}" target="_blank"> Редактирай тази информационна страница </a>
+    {% elseif is_category %}
+      <a href="/admin/index.php?route=catalog/category/edit&user_token={{adminBarToken}}&category_id={{customCategoryId}}" target="_blank"> Редактирай тази категория </a>
+      {% elseif is_brand %}
+      <a href="/admin/index.php?route=catalog/manufacturer/edit&user_token={{adminBarToken}}&manufacturer_id={{customBrandId}}" target="_blank"> Редактирай този производител </a>
+    {% endif %}
+  </div>
+
+{% endif %}
+
+{# Admin Bar End #}
+
+          ]]></add>
+      </operation>
+
+    </file>
+
+</modification>
