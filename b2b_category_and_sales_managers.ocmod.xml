@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modification>
-    <name>Viste Client Icons</name>
-    <code>viste_category_and_sales_managers</code>
+    <name>Client Icons</name>
+    <code>category_and_sales_managers</code>
     <version>1.0</version>
-    <author>Viste</author>
-    <link>https://viste.bg</link>
+
 
     <!-- Добавяме телефон към администраторите -->
     <file path="admin/view/template/user/user_form.twig">
