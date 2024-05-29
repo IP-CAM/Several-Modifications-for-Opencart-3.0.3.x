@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modification>
-    <name>Viste Out Of Stock Products</name>
-    <code>viste_no_stock_products</code>
+    <name>Low Stock Products Label</name>
+    <code>no_stock_products</code>
     <version>1.0</version>
-    <author>Viste</author>
-    <link>https://viste.bg</link>
+
 
 
     <file path="catalog/view/theme/journal3/template/product/product.twig">
