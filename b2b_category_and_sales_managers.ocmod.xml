@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Viste Client Icons</name>
+    <code>viste_category_and_sales_managers</code>
+    <version>1.0</version>
+    <author>Viste</author>
+    <link>https://viste.bg</link>
+
+    <!-- Добавяме телефон към администраторите -->
+    <file path="admin/view/template/user/user_form.twig">
+        <operation>
+            <search index="4"><![CDATA[<div class="form-group required">]]></search>
+            <add position="before"><![CDATA[
+					<div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-phone">Телефон</label>
+                        <div class="col-sm-10">
+                        <input type="text" name="phone" value="{{ phone }}" placeholder="Телефон" id="input-phone" class="form-control" />
+                        
+                        </div>
+                    </div>
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/controller/user/user.php">
+        <operation>
+            <search><![CDATA[if (isset($this->request->post['firstname'])) {]]></search>
+            <add position="before"><![CDATA[
+					if (isset($this->request->post['phone'])) {
+                        $data['phone'] = $this->request->post['phone'];
+                    } elseif (!empty($user_info)) {
+                        $data['phone'] = $user_info['phone'];
+                    } else {
+                        $data['phone'] = '';
+                    }
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/model/user/user.php">
+        <operation>
+            <search><![CDATA[$this->db->query("INSERT INTO `" . DB_PREFIX . "user` SET username = '" . $this->db->escape($data['username']) . "', user_group_id = '" . (int)$data['user_group_id'] . "', salt = '" . $this->db->escape($salt = token(9)) . "', password = '" . $this->db->escape(sha1($salt . sha1($salt . sha1($data['password'])))) . "', firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', image = '" . $this->db->escape($data['image']) . "', status = '" . (int)$data['status'] . "', date_added = NOW()");]]></search>
+            <add position="replace"><![CDATA[
+                $this->db->query("INSERT INTO `" . DB_PREFIX . "user` SET username = '" . $this->db->escape($data['username']) . "', user_group_id = '" . (int)$data['user_group_id'] . "', salt = '" . $this->db->escape($salt = token(9)) . "', password = '" . $this->db->escape(sha1($salt . sha1($salt . sha1($data['password'])))) . "', firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "',phone = '" . $this->db->escape($data['phone']) . "', image = '" . $this->db->escape($data['image']) . "', status = '" . (int)$data['status'] . "', date_added = NOW()");
+            ]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[$this->db->query("UPDATE `" . DB_PREFIX . "user` SET username = '" . $this->db->escape($data['username']) . "', user_group_id = '" . (int)$data['user_group_id'] . "', firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', image = '" . $this->db->escape($data['image']) . "', status = '" . (int)$data['status'] . "' WHERE user_id = '" . (int)$user_id . "'");]]></search>
+            <add position="replace"><![CDATA[
+                $this->db->query("UPDATE `" . DB_PREFIX . "user` SET username = '" . $this->db->escape($data['username']) . "', user_group_id = '" . (int)$data['user_group_id'] . "', firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "',phone = '" . $this->db->escape($data['phone']) . "', email = '" . $this->db->escape($data['email']) . "', image = '" . $this->db->escape($data['image']) . "', status = '" . (int)$data['status'] . "' WHERE user_id = '" . (int)$user_id . "'");
+            ]]></add>
+        </operation>
+    </file>
+
+    <!-- Добавяме избор на дилър към потребителската форма -->
+    <file path="admin/view/template/customer/customer_form.twig">
+        <operation>
+            <search index="1"><![CDATA[</fieldset>]]></search>
+            <add position="before"><![CDATA[
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-dealer">Дилър
+                    <br>
+                    <br>
+                    {% if not dealer %}
+                        <i style="color:red;">Няма избран търговец!</i>
+                    {% endif %}
+                  </label>
+                  <div class="col-sm-10">
+                    <select name="dealer" id="input-dealer" class="form-control">
+                        {% for single_dealer in dealers %}
+                            {% if dealer == single_dealer.id %}
+                                <option value="{{ single_dealer.id }}" selected="selected">{{ single_dealer.name }}</option>
+                            {% else %}
+                                <option value="{{ single_dealer.id }}">{{ single_dealer.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/controller/customer/customer.php">
+        <operation>
+            <search><![CDATA[if (isset($this->request->post['firstname'])) {]]></search>
+            <add position="before"><![CDATA[
+					//Взимаме всички дилъри
+                    $this->load->model('user/user');
+                    $filter_data_dealers = array(
+                        'sort'  => 'username',
+                        'order' => 'ASC',
+                        'start' => 0,
+                        'limit' => $this->model_user_user->getTotalUsers()
+                    );
+
+                    $dealers = $this->model_user_user->getUsers($filter_data_dealers);   
+                    $dealers_array = array();
+
+                    //Вземаме си нужното инфо за селекта
+                    foreach($dealers as $dealer){
+                        $dealer_info['name'] = $dealer['firstname'].' '.$dealer['lastname'];
+                        $dealer_info['id'] = $dealer['user_id'];
+                        array_push($dealers_array,$dealer_info);
+                    }
+
+                    $data['dealers'] = $dealers_array;
+
+                    //Пращаме дилъра
+                    if (isset($this->request->post['dealer'])) {
+                        $data['dealer'] = $this->request->post['dealer'];
+                    } elseif (!empty($customer_info)) {
+                        $data['dealer'] = $customer_info['dealer'];
+                    } else {
+                        $data['dealer'] = '';
+                    }
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/model/customer/customer.php">
+        <operation>
+            <search><![CDATA[if ($data['password']) {]]></search>
+            <add position="before"><![CDATA[
+                if ($data['dealer']) {
+                    $this->db->query("UPDATE " . DB_PREFIX . "customer SET  dealer = '" . $this->db->escape($data['dealer']) . "' WHERE customer_id = '" . (int)$customer_id . "'");
+                }
+            ]]></add>
+        </operation>
+    </file>
+
+    <!-- Добавяме избор на категориен мениджър към категорийната форма -->
+    <file path="admin/view/template/catalog/category_form.twig">
+        <operation>
+            <search index="3"><![CDATA[<div class="form-group">]]></search>
+            <add position="before"><![CDATA[
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-catmanager">Категориен мениджър
+                    <br>
+                    <br>
+                    {% if not catmanager %}
+                        <i style="color:red;">Няма избран категориен мениджър!</i>
+                    {% endif %}
+                  </label>
+                  <div class="col-sm-10">
+                    <select name="catmanager" id="input-catmanager" class="form-control">
+                        {% for single_catmanager in catmanagers %}
+                            {% if catmanager == single_catmanager.id %}
+                                <option value="{{ single_catmanager.id }}" selected="selected">{{ single_catmanager.name }}</option>
+                            {% else %}
+                                <option value="{{ single_catmanager.id }}">{{ single_catmanager.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/controller/catalog/category.php">
+        <operation>
+            <search><![CDATA[$data['languages'] = $this->model_localisation_language->getLanguages();]]></search>
+            <add position="after"><![CDATA[
+					//Взимаме всички категорийни мениджъри
+                    $this->load->model('user/user');
+                    $filter_data_catmanagers = array(
+                        'sort'  => 'username',
+                        'order' => 'ASC',
+                        'start' => 0,
+                        'limit' => $this->model_user_user->getTotalUsers()
+                    );
+
+                    $catmanagers = $this->model_user_user->getUsers($filter_data_catmanagers);   
+                    $catmanagers_array = array();
+
+                    //Вземаме си нужното инфо за селекта
+                    foreach($catmanagers as $manager){
+                        $manager_info['name'] = $manager['firstname'].' '.$manager['lastname'];
+                        $manager_info['id'] = $manager['user_id'];
+                        array_push($catmanagers_array,$manager_info);
+                    }
+
+                    $data['catmanagers'] = $catmanagers_array;
+
+                    //Пращаме категорийния мениджър
+                    if (isset($this->request->post['catmanager'])) {
+                        $data['catmanager'] = $this->request->post['catmanager'];
+                    } elseif (!empty($category_info)) {
+                        $data['catmanager'] = $category_info['category_manager'];
+                    } else {
+                        $data['catmanager'] = '';
+                    }
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/model/catalog/category.php">
+        <operation>
+            <search index="1"><![CDATA[if (isset($data['image'])) {]]></search>
+            <add position="before"><![CDATA[
+                if ($data['catmanager']) {
+                    $this->db->query("UPDATE " . DB_PREFIX . "category SET category_manager = '" . $this->db->escape($data['catmanager']) . "' WHERE category_id = '" . (int)$category_id . "'");
+                }
+            ]]></add>
+        </operation>
+    </file>
+
+    <!-- Извеждаме информацията в категорийна страница  -->
+    <file path="catalog/controller/product/category.php">
+        <operation>
+            <search><![CDATA[$data['heading_title'] = $category_info['name'];]]></search>
+            <add position="after"><![CDATA[
+                if(isset($category_info['category_manager'])){
+                    $category_manager_query = $this->db->query("SELECT * FROM oc_user WHERE user_id = '".$category_info['category_manager']."'");
+                    $manager_info = $category_manager_query->row;
+                    $manager_info_array['name'] = $manager_info['firstname'].' '.$manager_info['lastname'];
+                    $manager_info_array['phone'] = $manager_info['phone']; 
+                    $data['category_manager'] = $manager_info_array;
+                }
+
+                $cusomer_id = $this->customer->getId(); 
+
+                if(isset($cusomer_id)){
+                    $this->load->model('account/customer');
+                    $customer_information = $this->model_account_customer->getCustomer($cusomer_id);
+                    $dealer_id = $customer_information['dealer'];
+                    $dealer_info_query = $this->db->query("SELECT * FROM oc_user WHERE user_id = '".$dealer_id."'");
+                    $dealer_info = $dealer_info_query->row;
+                    $dealer_info_array['name'] = $dealer_info['firstname'].' '.$dealer_info['lastname'];
+                    $dealer_info_array['phone'] = $dealer_info['phone']; 
+                    $data['dealer'] = $dealer_info_array;
+                }
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="catalog/view/theme/journal3/template/product/category.twig">
+        <operation>
+            <search><![CDATA[<div class="row">{{ column_left }}]]></search>
+            <add position="before"><![CDATA[
+                {% if (category_manager.name|length > 1) or (dealer.name|length > 1) %}
+                    <div id="b2b-customer-info">
+                        {% if category_manager.name|length > 1 %}
+                            <span><i>Категориен мениджър</i> - {{ category_manager.name }} тел.{{ category_manager.phone }}</span>
+                        {% endif %}
+                        {% if dealer.name|length > 1 %}
+                            <span><i>Оторизиран търговец</i> - {{ dealer.name }} тел.{{ dealer.phone }}</span>
+                        {% endif %}
+                    </div>
+                    <style>
+                        #b2b-customer-info{
+                            margin-top: 30px;
+                            background: #fff;
+                            border: 1px solid rgba(238,238,238,1);
+                            padding: 15px;
+                            border-radius: 7px;
+                            display: flex;
+                            flex-direction: row;
+                            justify-content: space-between;
+                        }
+                        .mobile #b2b-customer-info{
+                            flex-direction: column;
+                            gap: 10px;
+                            width: calc(100% - 20px);
+                            margin: 30px auto 0;
+                        }
+                    </style>
+                {% endif %}
+            ]]></add>
+        </operation>
+    </file>
+
+    <!-- Извеждаме информацията в продуктова страница  -->
+    <file path="catalog/controller/product/product.php">
+        <operation>
+            <search><![CDATA[$this->response->setOutput($this->load->view('product/product', $data));]]></search>
+            <add position="before"><![CDATA[
+                $cusomer_id = $this->customer->getId(); 
+                if(isset($cusomer_id)){
+                    $this->load->model('account/customer');
+                    $customer_information = $this->model_account_customer->getCustomer($cusomer_id);
+                    $dealer_id = $customer_information['dealer'];
+                    $dealer_info_query = $this->db->query("SELECT * FROM oc_user WHERE user_id = '".$dealer_id."'");
+                    $dealer_info = $dealer_info_query->row;
+                    $dealer_info_array['name'] = $dealer_info['firstname'].' '.$dealer_info['lastname'];
+                    $dealer_info_array['phone'] = $dealer_info['phone']; 
+                    $data['dealer'] = $dealer_info_array;
+                }
+                $product_cat = $this->model_catalog_product->getCategories($product_id);
+                $product_last_cat = end($product_cat);
+
+                $this->load->model('catalog/category');
+                $category_info = $this->model_catalog_category->getCategory($product_last_cat['category_id']);
+
+                if(isset($category_info['category_manager'])){
+                    $category_manager_query = $this->db->query("SELECT * FROM oc_user WHERE user_id = '".$category_info['category_manager']."'");
+                    $manager_info = $category_manager_query->row;
+                    $manager_info_array['name'] = $manager_info['firstname'].' '.$manager_info['lastname'];
+                    $manager_info_array['phone'] = $manager_info['phone']; 
+                    $data['category_manager'] = $manager_info_array;
+                }   
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="catalog/view/theme/journal3/template/product/product.twig">
+        <operation>
+            <search><![CDATA[<div class="product-right">]]></search>
+            <add position="after"><![CDATA[
+                {% if (category_manager.name|length > 1) or (dealer.name|length > 1) %}
+                    <div id="b2b-customer-info">
+                        {% if category_manager.name|length > 1 %}
+                            <span><i>Категориен мениджър</i> - {{ category_manager.name }} тел.{{ category_manager.phone }}</span>
+                        {% endif %}
+                        {% if dealer.name|length > 1 %}
+                            <span><i>Оторизиран търговец</i> - {{ dealer.name }} тел.{{ dealer.phone }}</span>
+                        {% endif %}
+                    </div>
+                    <style>
+                        #b2b-customer-info{
+                                width: 250px;
+                                float:right;    
+                                background: #fff;
+                                border: 1px solid rgba(238,238,238,1);
+                                padding: 15px;
+                                border-radius: 7px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: flex-start;
+                                align-items: center;
+                                gap: 15px;
+                        }
+                        .mobile #b2b-customer-info{
+                                float: unset;
+                                gap: 10px;
+                                width: 100%;
+                                margin: 10px 0;
+                        }
+                    </style>
+                {% endif %}
+            ]]></add>
+        </operation>
+    </file>
+</modification>

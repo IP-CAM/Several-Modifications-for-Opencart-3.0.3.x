@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Viste Out Of Stock Products</name>
+    <code>viste_no_stock_products</code>
+    <version>1.0</version>
+    <author>Viste</author>
+    <link>https://viste.bg</link>
+
+
+    <file path="catalog/view/theme/journal3/template/product/product.twig">
+        <operation>
+            <search><![CDATA[<div class="product-left">]]></search>
+            <add position="after"><![CDATA[
+                {# Viste Product Label Start #}
+					{% if product_quantity < 6 %}
+						<span id="low-stock-label">{{ text_low_stock }}</span>
+                        <style>
+                        #low-stock-label{
+                            color: #dd0e1c;
+                            padding: 10px 0;
+                            width: 100%;
+                            text-align: left;
+                            text-transform: uppercase;
+                            font-weight: bold;
+                        }
+                        </style>
+					{% endif %}
+				{# Viste Product Label End #}
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="catalog/language/bg/product/product.php">
+        <operation>
+            <search><![CDATA[// Text]]></search>
+            <add position="after"><![CDATA[
+					$_['text_low_stock'] = 'Ограничена наличност';
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="catalog/language/en-gb/product/product.php">
+        <operation>
+            <search><![CDATA[// Text]]></search>
+            <add position="after"><![CDATA[
+					$_['text_low_stock'] = 'Low stock';
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="catalog/language/ro-ro/product/product.php">
+        <operation>
+            <search><![CDATA[// Text]]></search>
+            <add position="after"><![CDATA[
+					$_['text_low_stock'] = 'cantitate limitată';
+            ]]></add>
+        </operation>
+    </file>
+
+
+    
+
+</modification>
