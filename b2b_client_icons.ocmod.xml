@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modification>
-    <name>Viste Client Icons</name>
-    <code>viste_client_icons</code>
+    <name>Client Icons</name>
+    <code>client_icons</code>
     <version>1.0</version>
-    <author>Viste</author>
-    <link>https://viste.bg</link>
 
 
     <file path="admin/view/template/customer/customer_group_form.twig">
